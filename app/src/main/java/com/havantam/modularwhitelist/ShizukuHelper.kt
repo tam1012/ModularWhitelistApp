@@ -100,7 +100,8 @@ class ShizukuHelper(private val context: Context) {
         }
 
         return try {
-            val process = Shizuku.newProcess(arrayOf("sh", "-c", command), null, null)
+            // Use remoteProcess (public API) instead of newProcess (private)
+            val process = Shizuku.remoteProcess(arrayOf("sh", "-c", command), null, null)
             
             // Read output
             val output = StringBuilder()
