@@ -1,0 +1,56 @@
+name: Build APK
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: gradle
+      
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+      
+      - name: Build debug APK
+        run: ./gradlew assembleDebug --stacktrace
+      
+      - name: Get APK info
+        id: apk_info
+        run: |
+          APK_PATH=$(find app/build/outputs/apk/debug -name "*.apk" | head -n 1)
+          APK_SIZE=$(du -h "$APK_PATH" | cut -f1)
+          echo "apk_path=$APK_PATH" >> $GITHUB_OUTPUT
+          echo "apk_size=$APK_SIZE" >> $GITHUB_OUTPUT
+          echo "APK Size: $APK_SIZE"
+      
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: MODULAR_WHITELIST-debug-apk
+          path: ${{ steps.apk_info.outputs.apk_path }}
+          retention-days: 30
+      
+      - name: Build summary
+        run: |
+          echo "## Build Success! 🎉" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**APK Size:** ${{ steps.apk_info.outputs.apk_size }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Download:** Click on 'Artifacts' above to download the APK" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "---" >> $GITHUB_STEP_SUMMARY
+          echo "*MODULAR WHITELIST by Ha Van Tam - babyinmyl0v3 - ae vOz*" >> $GITHUB_STEP_SUMMARY

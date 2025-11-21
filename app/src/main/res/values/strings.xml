@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">MODULAR WHITELIST</string>
+    <string name="author_info">by Ha Van Tam - babyinmyl0v3 - ae vOz</string>
+    
+    <string name="apply_whitelist">Apply Whitelist</string>
+    <string name="log_output">Log Output:</string>
+    <string name="log_placeholder">[INFO] Sẵn sàng. Nhấn nút Apply để bắt đầu.\n</string>
+    
+    <string name="status_ready">✅ Sẵn sàng</string>
+    <string name="status_running">🔄 Đang whitelist...</string>
+    <string name="status_complete">✅ Hoàn tất</string>
+    <string name="status_error">❌ Lỗi</string>
+    <string name="status_no_shizuku">❌ Shizuku chưa cài đặt</string>
+    <string name="status_shizuku_not_running">⚠️ Shizuku chưa chạy</string>
+    <string name="status_need_permission">🔐 Cần cấp quyền Shizuku</string>
+</resources>
