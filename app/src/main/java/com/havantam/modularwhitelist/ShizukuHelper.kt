@@ -91,52 +91,54 @@ class ShizukuHelper(private val context: Context) {
     }
 
     /**
-     * Execute shell command via Shizuku
-     * Returns Pair<exitCode, output>
+     * Put a setting value using Shizuku permissions
+     * Returns true if successful
      */
-    fun executeCommand(command: String): Pair<Int, String> {
+    fun putSetting(namespace: String, key: String, value: String): Boolean {
         if (!hasPermission()) {
-            return Pair(-1, "ERROR: No Shizuku permission")
+            return false
         }
 
         return try {
-            // Use remoteProcess (public API) instead of newProcess (private)
-            val process = Shizuku.remoteProcess(arrayOf("sh", "-c", command), null, null)
-            
-            // Read output
-            val output = StringBuilder()
-            val reader = BufferedReader(InputStreamReader(process.inputStream))
-            var line: String?
-            while (reader.readLine().also { line = it } != null) {
-                output.append(line).append("\n")
+            when (namespace.lowercase()) {
+                "system" -> android.provider.Settings.System.putString(
+                    context.contentResolver, key, value
+                )
+                "secure" -> android.provider.Settings.Secure.putString(
+                    context.contentResolver, key, value
+                )
+                "global" -> android.provider.Settings.Global.putString(
+                    context.contentResolver, key, value
+                )
+                else -> false
             }
-            reader.close()
-
-            // Read error stream
-            val errorReader = BufferedReader(InputStreamReader(process.errorStream))
-            var errorLine: String?
-            while (errorReader.readLine().also { errorLine = it } != null) {
-                output.append("ERROR: ").append(errorLine).append("\n")
-            }
-            errorReader.close()
-
-            // Wait for completion
-            val exitCode = process.waitFor()
-            process.destroy()
-
-            Pair(exitCode, output.toString())
-
         } catch (e: Exception) {
-            Pair(-1, "EXCEPTION: ${e.message}")
+            e.printStackTrace()
+            false
         }
     }
 
     /**
-     * Execute command and return true if successful (exit code 0)
+     * Get a setting value
      */
-    fun executeCommandSimple(command: String): Boolean {
-        val (exitCode, _) = executeCommand(command)
-        return exitCode == 0
+    fun getSetting(namespace: String, key: String): String? {
+        return try {
+            when (namespace.lowercase()) {
+                "system" -> android.provider.Settings.System.getString(
+                    context.contentResolver, key
+                )
+                "secure" -> android.provider.Settings.Secure.getString(
+                    context.contentResolver, key
+                )
+                "global" -> android.provider.Settings.Global.getString(
+                    context.contentResolver, key
+                )
+                else -> null
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            null
+        }
     }
 
     /**
